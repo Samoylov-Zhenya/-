@@ -1,0 +1,193 @@
+#include <iostream>
+using namespace std;
+const int nmax = 1000;
+
+void ArrCin(int** arr, const int SizeA, const int SizeB, const char* ArrName);
+void ArrRand(int** arr, const int SizeA, const int SizeB, int const min, int const max);
+void PrintArr(int** arr, const int SizeA, const int SizeB, const char* ArrName);
+int& at(int** arr, int index, int m);
+int size(int m, int n);
+void SelectionSort(int** arr, int n, int m);
+void Merge(int** arr, int m, int begin, int end);
+void MergeSort(int** arr, int m, int left, int right);
+
+void Swap(int* xp, int* yp)
+{
+	int temp = *xp;
+	*xp = *yp;
+	*yp = temp;
+}
+void Swap(int& xp, int& yp)
+{
+	int temp = xp;
+	xp = yp;
+	yp = temp;
+}
+
+int main()
+{
+	setlocale(0, "");
+	srand(time(NULL));
+	int i, j, n, m, ** arr;
+	int max, min;
+	bool RAN;
+	printf("Введите размер маccива (N1*M1): \n");
+	printf("N1 = ");
+	cin >> n;
+	printf("M1 = ");
+	cin >> m;
+
+	arr = new int* [n];
+	for (i = 0; i < n; i++)
+		arr[i] = new int[m];
+	
+	printf("Заполнение массива.\n Случайно -  1, вручную - 0 \n");
+	cin >> RAN;
+	if (RAN)
+	{
+		printf("Введите макс значение ");
+		cin >> max;
+		printf("Введите минимальное  значение ");
+		cin >> min;
+		ArrRand(arr, n, m, min, max);
+	}
+	else
+	{
+		ArrCin(arr, n, m, "массив:");
+	}
+	PrintArr(arr, n, m, "Массив:");
+	
+	printf("Выберите сортирвку.\n SelectionSort - 1, MergeSort - 0 \n");
+	cin >> RAN;
+	if (RAN == 1)
+	{
+		SelectionSort(arr, n, m);
+	}
+	else
+	{
+		MergeSort(arr, m, 0, size(n, m) - 1);
+	}
+	PrintArr(arr, n, m, "Отсортированый массив:");
+}
+
+void MergeSort(int** arr, int m, int left, int right)
+{
+	int temp = 0;
+	if (left < right)
+		if (right - left == 1)
+		{
+			if (at(arr, left, m) > at(arr, right, m))
+			{
+				Swap(at(arr, left, m), at(arr, right, m));
+			}
+		}
+		else
+		{
+			MergeSort(arr, m, left, left + (right - left) / 2);
+			MergeSort(arr, m, left + (right - left) / 2 + 1, right);
+			Merge(arr, m, left, right);
+		}
+}
+
+void ArrCin(int** arr, const int SizeA, const int SizeB, const char* ArrName)
+{
+	cout << "Введите " << ArrName << "\n";
+	for (int i = 0; i < SizeA; i++)
+	{
+		for (int j = 0; j < SizeB; j++)
+		{
+			cout << "элемент [" << i << "][" << j << "] = ";
+			cin >> arr[i][j];
+		}
+	}
+	printf("\n");
+}
+
+void ArrRand(int** arr, const int SizeA, const int SizeB, int const min, int const max)
+{
+	for (int i = 0; i < SizeA; i++)
+	{
+		for (int j = 0; j < SizeB; j++)
+		{
+			arr[i][j] = rand() % max - min;
+		}
+	}
+	printf("\n");
+}
+
+void PrintArr(int** arr, const int SizeA, const int SizeB, const char* ArrName)
+{
+	cout << ArrName << "\n";
+	for (int i = 0; i < SizeA; i++)
+	{
+		for (int j = 0; j < SizeB; j++)
+		{
+			cout << arr[i][j] << "\t";
+		}
+		printf("\n");
+	}
+	printf("\n");
+}
+
+int& at(int** arr, int index, int m)
+{
+	int row = index / m;
+	int col = index % m;
+	return arr[row][col];
+}
+
+int size(int m, int n)
+{
+	return n * m;
+}
+
+void SelectionSort(int** arr, int n, int m)
+{
+	int sz = size(n, m);
+	for (int i = 0; i < sz; ++i)
+	{
+		int min = at(arr, i, m);
+		int ind = i;
+		for (int j = i + 1; j < sz; ++j)
+		{
+			if (at(arr, i, m) > at(arr, j, m))
+			{
+				Swap(at(arr, i, m), at(arr, j, m));
+			}
+		}
+	}
+}
+
+void Merge(int** arr, int m, int begin, int end)
+{
+	int mid, j, k, i, d[nmax];
+	i = begin;
+	mid = begin + (end - begin) / 2;
+	j = mid + 1;
+	k = 0;
+	while (i <= mid && j <= end)
+	{
+		if (at(arr, i, m) <= at(arr, j, m))
+		{
+			d[k] = at(arr, i, m);
+			i++;
+		}
+		else
+		{
+			d[k] = at(arr, j, m);
+			j++;
+		}
+		k++;
+	}
+	for (; i <= mid; i++, k++)
+	{
+		d[k] = at(arr, i, m);
+	}
+	for (; j <= end; j++, k++)
+	{
+		d[k] = at(arr, j, m);
+	}
+
+	for (i = 0; i < k; i++)
+		at(arr, begin + i, m) = d[i];
+}
